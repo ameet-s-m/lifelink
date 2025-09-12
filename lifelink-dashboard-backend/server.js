@@ -21,10 +21,6 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0
 });
-// --- NEW: Root Route for Health Check ---
-app.get('/', (req, res) => {
-    res.status(200).send('LifeLink Server is running and ready to receive alerts.');
-});
 
 
 // --- API Routes (Endpoints) ---
