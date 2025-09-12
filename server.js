@@ -171,12 +171,19 @@ app.get('/api/analytics/responsetimes', async (req, res) => {
 });
 
 // GET: Export all data as CSV
+// In server.js
+
+// GET: Export all data as CSV
 app.get('/api/export/csv', async (req, res) => {
     try {
-        // FIXED: Added quotes to the SQL string
         const [rows] = await pool.query(`SELECT * FROM alerts`);
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(rows);
+
+        // NEW: Add headers to prevent the browser from caching this file
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
 
         res.header('Content-Type', 'text/csv');
         res.attachment('lifelink-report.csv');
