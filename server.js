@@ -189,6 +189,7 @@ app.get('/api/export/csv', async (req, res) => {
         res.attachment('lifelink-report.csv');
         res.send(csv);
     } catch (error) {
+        console.error('Database error:', error);
         res.status(500).send({ message: 'Error exporting data', error });
     }
 });
