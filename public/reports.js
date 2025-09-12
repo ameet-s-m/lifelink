@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const SERVER_URL = 'http://localhost:3000';
+    const SERVER_URL = 'https://lifelink-90wf.onrender.com';
 
     // --- Initialize Heatmap ---
     async function initHeatmap() {
