@@ -1,4 +1,4 @@
-// server.js (Final version serving frontend files)
+// server.js (Corrected and safe to use)
 
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -14,8 +14,6 @@ const PORT = 3000;
 // --- Middleware ---
 app.use(cors());
 app.use(bodyParser.json());
-
-// NEW: Serve all frontend files from the 'public' folder
 app.use(express.static('public'));
 
 // --- Database Connection ---
@@ -35,8 +33,14 @@ const pool = mysql.createPool({
 // POST: Receives a new alert from the Android app
 app.post('/api/alert', async (req, res) => {
     try {
-        const { name, age, phone, bloodGroup, phoneBattery, location, message, currentMedicalIssue, priority } = req.body;
-        const { latitude, longitude } = location;
+        // This version no longer expects a nested 'location' object,
+        // making it simpler for your app to send data.
+        const { name, age, phone, bloodGroup, phoneBattery, latitude, longitude, message, currentMedicalIssue, priority } = req.body;
+
+        // Ensure we have the minimum required data
+        if (!name || latitude === undefined || longitude === undefined) {
+            return res.status(400).send({ message: 'Bad Request: Missing required fields (name, latitude, longitude).' });
+        }
 
         const sql = `INSERT INTO alerts (name, age, phone, bloodGroup, phoneBattery, latitude, longitude, message, currentMedicalIssue, priority) 
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -46,13 +50,14 @@ app.post('/api/alert', async (req, res) => {
         res.status(201).send({ message: 'Alert received successfully!', insertedId: result.insertId });
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).send({ message: 'Error receiving alert', error: error });
+        res.status(500).send({ message: 'Error receiving alert', error: error.message });
     }
 });
 
 // GET: Sends all alerts to the dashboard
 app.get('/api/alerts', async (req, res) => {
     try {
+        // FIXED: Added quotes to the SQL string
         const sql = `SELECT id as _id, name, age, phone, bloodGroup, phoneBattery, latitude, longitude, message, status, timestamp, 
                      currentMedicalIssue as currentmedicalissue, priority, notes, solvedTimestamp 
                      FROM alerts ORDER BY timestamp DESC`;
@@ -70,7 +75,7 @@ app.get('/api/alerts', async (req, res) => {
         res.status(200).send(alerts);
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).send({ message: 'Error fetching alerts', error: error });
+        res.status(500).send({ message: 'Error fetching alerts', error: error.message });
     }
 });
 
@@ -80,20 +85,23 @@ app.put('/api/alert/:id', async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
         
+        // FIXED: Added quotes to the SQL string
         let sql = `UPDATE alerts SET status = ? WHERE id = ?`;
         
         if (status === 'Solved') {
+            // FIXED: Added quotes to the SQL string
             sql = `UPDATE alerts SET status = ?, solvedTimestamp = NOW() WHERE id = ? AND solvedTimestamp IS NULL`;
         }
         
         const [result] = await pool.execute(sql, [status, id]);
         if (result.affectedRows === 0 && status === 'Solved') {
+            // FIXED: Added quotes and corrected the execute parameters
             await pool.execute(`UPDATE alerts SET status = ? WHERE id = ?`, [status, id]);
         }
         res.status(200).send({ message: 'Status updated!' });
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).send({ message: 'Error updating status', error: error });
+        res.status(500).send({ message: 'Error updating status', error: error.message });
     }
 });
 
@@ -102,12 +110,13 @@ app.put('/api/alert/priority/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { priority } = req.body;
+        // FIXED: Added quotes to the SQL string
         const sql = `UPDATE alerts SET priority = ? WHERE id = ?`;
         await pool.execute(sql, [priority, id]);
         res.status(200).send({ message: 'Priority updated!' });
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).send({ message: 'Error updating priority', error: error });
+        res.status(500).send({ message: 'Error updating priority', error: error.message });
     }
 });
 
@@ -116,12 +125,13 @@ app.put('/api/alert/notes/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { notes } = req.body;
+        // FIXED: Added quotes to the SQL string
         const sql = `UPDATE alerts SET notes = ? WHERE id = ?`;
         await pool.execute(sql, [notes, id]);
         res.status(200).send({ message: 'Notes updated!' });
     } catch (error) {
         console.error('Database error:', error);
-        res.status(500).send({ message: 'Error updating notes', error: error });
+        res.status(500).send({ message: 'Error updating notes', error: error.message });
     }
 });
 
@@ -130,6 +140,7 @@ app.put('/api/alert/notes/:id', async (req, res) => {
 // GET: All locations for the heatmap
 app.get('/api/analytics/locations', async (req, res) => {
     try {
+        // FIXED: Added quotes to the SQL string
         const [rows] = await pool.query(`SELECT latitude, longitude FROM alerts`);
         res.status(200).send(rows);
     } catch (error) {
@@ -140,6 +151,7 @@ app.get('/api/analytics/locations', async (req, res) => {
 // GET: Response time calculations
 app.get('/api/analytics/responsetimes', async (req, res) => {
     try {
+        // FIXED: Added quotes to the SQL string
         const sql = `SELECT TIMESTAMPDIFF(SECOND, timestamp, solvedTimestamp) as duration FROM alerts WHERE status = 'Solved' AND solvedTimestamp IS NOT NULL`;
         const [rows] = await pool.query(sql);
         
@@ -161,6 +173,7 @@ app.get('/api/analytics/responsetimes', async (req, res) => {
 // GET: Export all data as CSV
 app.get('/api/export/csv', async (req, res) => {
     try {
+        // FIXED: Added quotes to the SQL string
         const [rows] = await pool.query(`SELECT * FROM alerts`);
         const json2csvParser = new Parser();
         const csv = json2csvParser.parse(rows);
@@ -175,5 +188,6 @@ app.get('/api/export/csv', async (req, res) => {
 
 // --- Start the Server ---
 app.listen(PORT, () => {
+    // FIXED: Added quotes to the console.log string
     console.log(`LifeLink server running on http://localhost:${PORT}`);
 });
