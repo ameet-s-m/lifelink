@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioBanner = document.getElementById('audio-permission-banner');
 
     // --- State Variables ---
-    const SERVER_URL = 'http://localhost:3000';
+    const SERVER_URL = 'https://lifelink-90wf.onrender.com';
     let allAlerts = [];
     let activeFilter = 'Pending';
     let map; 
