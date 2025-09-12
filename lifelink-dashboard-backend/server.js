@@ -1,31 +1,33 @@
-// server.js (With Tier 1 and Tier 3 Analytics Features)
+// server.js (Final version serving frontend files)
 
 const express = require('express');
 const mysql = require('mysql2/promise');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { Parser } = require('json2csv'); // NEW: For CSV export
+const { Parser } = require('json2csv');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
+// --- Middleware ---
 app.use(cors());
 app.use(bodyParser.json());
 
+// NEW: Serve all frontend files from the 'public' folder
+app.use(express.static('public'));
+
+// --- Database Connection ---
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root', 
-    password: 'root', 
-    database: 'lifelinkDB',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    port: process.env.DB_PORT,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
-});
-
-
-// --- API Routes (Endpoints) ---
-
-app.post('/api/alert', async (req, res) => {
 });
 
 // --- API Routes (Endpoints) ---
@@ -52,7 +54,7 @@ app.post('/api/alert', async (req, res) => {
 app.get('/api/alerts', async (req, res) => {
     try {
         const sql = `SELECT id as _id, name, age, phone, bloodGroup, phoneBattery, latitude, longitude, message, status, timestamp, 
-                     currentMedicalIssue as currentmedicalissue, priority, notes 
+                     currentMedicalIssue as currentmedicalissue, priority, notes, solvedTimestamp 
                      FROM alerts ORDER BY timestamp DESC`;
         
         const [rows] = await pool.query(sql);
@@ -72,27 +74,21 @@ app.get('/api/alerts', async (req, res) => {
     }
 });
 
-// PUT: Updates the status of an alert // UPDATED
+// PUT: Updates the status of an alert
 app.put('/api/alert/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
         
         let sql = `UPDATE alerts SET status = ? WHERE id = ?`;
-        let params = [status, id];
-
-        // If case is being marked as 'Solved', set the solvedTimestamp
+        
         if (status === 'Solved') {
             sql = `UPDATE alerts SET status = ?, solvedTimestamp = NOW() WHERE id = ? AND solvedTimestamp IS NULL`;
         }
         
-        const [result] = await pool.execute(sql, params);
-        if (result.affectedRows === 0) {
-            // This might happen if the case was already solved, which is fine.
-            // We can run a simple update just for the status in that case.
-            if (status === 'Solved') {
-                await pool.execute(`UPDATE alerts SET status = ? WHERE id = ?`, [status, id]);
-            }
+        const [result] = await pool.execute(sql, [status, id]);
+        if (result.affectedRows === 0 && status === 'Solved') {
+            await pool.execute(`UPDATE alerts SET status = ? WHERE id = ?`, [status, id]);
         }
         res.status(200).send({ message: 'Status updated!' });
     } catch (error) {
@@ -129,14 +125,12 @@ app.put('/api/alert/notes/:id', async (req, res) => {
     }
 });
 
-
-// --- NEW ANALYTICS ROUTES ---
+// --- Analytics & Reporting Routes ---
 
 // GET: All locations for the heatmap
 app.get('/api/analytics/locations', async (req, res) => {
     try {
-        const sql = `SELECT latitude, longitude FROM alerts`;
-        const [rows] = await pool.query(sql);
+        const [rows] = await pool.query(`SELECT latitude, longitude FROM alerts`);
         res.status(200).send(rows);
     } catch (error) {
         res.status(500).send({ message: 'Error fetching locations', error });
@@ -179,9 +173,7 @@ app.get('/api/export/csv', async (req, res) => {
     }
 });
 
-
 // --- Start the Server ---
 app.listen(PORT, () => {
     console.log(`LifeLink server running on http://localhost:${PORT}`);
-    console.log('Connected to MySQL database.');
 });
