@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - LifeLink Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="icon.png" alt="LifeLink Icon" class="header-icon">
+            <h1>LifeLink Reports</h1>
+        </div>
+        <a href="index.html" class="header-link">Back to Dashboard</a>
+    </header>
+
+    <main>
+        <div class="reports-header">
+            <h2>Dashboard Analytics</h2>
+            <a href="http://localhost:3000/api/export/csv" class="export-btn">Export All Data (CSV)</a>
+        </div>
+
+        <section class="reports-grid">
+            <div class="report-widget">
+                <h3>Incident Heatmap</h3>
+                <p>Locations where alerts are most frequently reported.</p>
+                <div id="heatmap-container"></div>
+            </div>
+            <div class="report-widget">
+                <h3>Response Time (Seconds)</h3>
+                <p>Average, minimum, and maximum time to resolve a case.</p>
+                <div class="chart-container">
+                    <canvas id="response-time-chart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="reports.js"></script>
+</body>
+</html>

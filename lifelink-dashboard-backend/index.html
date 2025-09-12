@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeLink - Disaster Response Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="icon.png" alt="LifeLink Icon" class="header-icon">
+            <h1>LifeLink Dashboard</h1>
+        </div>
+        <a href="reports.html" class="header-link">View Reports</a>
+    </header>
+
+    <main>
+        <div id="audio-permission-banner">
+        <button id="enable-audio-btn">🔊 Enable Sound Alerts</button>
+        </div>
+        <section class="stats-container">
+            <div class="stat-card">
+                <h2>Total Cases</h2>
+                <p id="total-cases">0</p>
+            </div>
+            <div class="stat-card">
+                <h2>In Progress</h2>
+                <p id="processing-cases">0</p>
+            </div>
+            <div class="stat-card">
+                <h2>Cases Solved</h2>
+                <p id="solved-cases">0</p>
+            </div>
+        </section>
+
+        <nav class="filter-tabs">
+            <button class="tab-btn active" data-status="Pending">Pending Cases</button>
+            <button class="tab-btn" data-status="Processing">Processing Cases</button>
+            <button class="tab-btn" data-status="Solved">Solved Cases</button>
+        </nav>
+
+        <div id="alerts-container">
+            <div id="alerts-list">
+                </div>
+        </div>
+    </main>
+
+    <div id="map-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-modal-btn">×</button>
+            <div class="modal-body">
+                <div id="map"></div>
+                <div class="notes-section">
+                    <h4>Incident Log & Notes</h4>
+                    <textarea id="incident-notes" placeholder="Add timestamped notes here..."></textarea>
+                    <button id="save-notes-btn" class="directions-btn">Save Notes</button>
+                </div>
+            </div>
+            <a id="modal-directions-btn" href="#" class="directions-btn" target="_blank">Get Directions</a>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

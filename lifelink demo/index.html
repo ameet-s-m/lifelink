@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>LifeLink Help Portal</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+</head>
+<body>
+  <div class="background"></div>
+  <div class="container glass-morph" id="app">
+    <header>
+      <img src="image.webp" class="logo" alt="Govt Logo"/>
+      <div class="title-wrap">
+        <h1>LifeLink</h1>
+        <h2><span class="pulse">You are not alone!</span></h2>
+      </div>
+      <div class="motivation">
+        <span class="material-icons">volunteer_activism</span>
+        <p>Help is always on the way.<br><span style="color:#37db56;">Our team and the government will assist you soon!</span></p>
+      </div>
+    </header>
+    <nav>
+      <button onclick="showTab('chat')" class="tab-btn active"><span class="material-icons">forum</span> Chat</button>
+      <button onclick="showTab('sos')" class="tab-btn"><span class="material-icons">warning</span> SOS</button>
+      <button onclick="showTab('connect')" class="tab-btn"><span class="material-icons">bluetooth</span> Bluetooth</button>
+    </nav>
+    <main>
+      <section id="chat" class="tab active">
+        <h3><span class="material-icons colored">forum</span> Mesh Chat</h3>
+        <div class="chat-window" id="messages"></div>
+        <form id="msgForm" autocomplete="off">
+          <input id="msgInput" type="text" placeholder="Type your message" autocomplete="off"/>
+          <button type="submit"><span class="material-icons">send</span></button>
+        </form>
+      </section>
+      <section id="sos" class="tab">
+        <h3><span class="material-icons colored">warning</span> SOS &amp; Location</h3>
+        <div class="sos-details">
+          <button onclick="sendSOS()" class="sos-btn glossy-btn">
+            <span class="material-icons">my_location</span> Send SOS with Location
+          </button>
+          <p id="sosStatus"></p>
+          <div class="help-assurance">
+            <span class="material-icons">verified_user</span>
+            <p>Government and rescue agencies will reach you soon. Stay calm and safe.</p>
+          </div>
+        </div>
+      </section>
+      <section id="connect" class="tab">
+        <h3><span class="material-icons colored">bluetooth</span> Bluetooth Mesh Connect 
+            <span class="bt-status" id="btStatus">Not Connected</span>
+        </h3>
+        <button onclick="connectBluetooth()" class="glossy-btn gradient2"><span class="material-icons">sync</span> Connect to Device</button>
+        <div id="bluetoothInfo"></div>
+        <div class="bluetooth-note">
+          <span class="material-icons">info</span>
+          <span>Bluetooth in browser is a demo. Full mesh works in the actual LifeLink mobile app.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
